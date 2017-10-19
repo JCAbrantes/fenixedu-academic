@@ -84,7 +84,7 @@ public class ShiftStudentEnrollmentManagerLookupDispatchAction extends FenixDisp
 
     private Registration getAndSetRegistration(final HttpServletRequest request) {
         final Registration registration = FenixFramework.getDomainObject(request.getParameter("registrationOID"));
-        if (!getUserView(request).getPerson().getStudent().getRegistrationsToEnrolInShiftByStudent().contains(registration)) {
+        if (!getUserView(request).getPerson().getStudent().getAllRegistrations().contains(registration)) {
             return null;
         }
 
@@ -102,6 +102,11 @@ public class ShiftStudentEnrollmentManagerLookupDispatchAction extends FenixDisp
         if (registration == null) {
             addActionMessage(request, "errors.impossible.operation");
             return mapping.getInputForward();
+        }
+
+        if (registration.getActiveStudentCurricularPlan() == null) {
+            addActionMessage(request, "errors.student.registration.noActiveCurricularPlan");
+            return mapping.findForward("prepareShiftEnrollment");
         }
 
         checkParameter(request);
@@ -195,7 +200,12 @@ public class ShiftStudentEnrollmentManagerLookupDispatchAction extends FenixDisp
         request.setAttribute("infoClasslessons", infoClasslessons);
         request.setAttribute("infoClasslessonsEndTime", Integer.valueOf(getEndTime(infoClasslessons)));
 
-        final List<InfoShowOccupation> infoLessons = ReadStudentTimeTable.run(registration, executionSemester);
+        final List<InfoShowOccupation> infoLessons = new ArrayList<InfoShowOccupation>();
+
+        for (Registration reg : registration.getStudent().getAllRegistrations()) {
+            infoLessons.addAll(ReadStudentTimeTable.run(reg, executionSemester));
+        }
+
         request.setAttribute("person", registration.getPerson());
         request.setAttribute("infoLessons", infoLessons);
         request.setAttribute("infoLessonsEndTime", Integer.valueOf(getEndTime(infoLessons)));

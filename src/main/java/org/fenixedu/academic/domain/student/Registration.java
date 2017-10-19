@@ -1441,8 +1441,8 @@ public class Registration extends Registration_Base {
     }
 
     final public Set<SchoolClass> getSchoolClassesToEnrolBy(final ExecutionCourse executionCourse) {
-        Set<SchoolClass> schoolClasses =
-                executionCourse.getSchoolClassesBy(getActiveStudentCurricularPlan().getDegreeCurricularPlan());
+        Set<SchoolClass> schoolClasses = getActiveStudentCurricularPlan() != null ? executionCourse
+                .getSchoolClassesBy(getActiveStudentCurricularPlan().getDegreeCurricularPlan()) : new HashSet<SchoolClass>();
         return schoolClasses.isEmpty() ? executionCourse.getSchoolClasses() : schoolClasses;
     }
 

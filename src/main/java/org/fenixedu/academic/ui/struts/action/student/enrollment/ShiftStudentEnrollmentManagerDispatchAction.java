@@ -91,7 +91,8 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
 
         final Student student = getUserView(request).getPerson().getStudent();
 
-        final List<Registration> toEnrol = student.getRegistrationsToEnrolInShiftByStudent();
+        final List<Registration> toEnrol = new ArrayList<Registration>();
+        toEnrol.addAll(student.getAllRegistrations());
         if (toEnrol.size() == 1) {
             request.setAttribute("registrationOID", toEnrol.iterator().next().getExternalId());
             return prepareStartViewWarning(mapping, form, request, response);
@@ -107,7 +108,7 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
             registrationOID = request.getParameter("registrationOID");
         }
         final Registration registration = FenixFramework.getDomainObject(registrationOID);
-        if (!getUserView(request).getPerson().getStudent().getRegistrationsToEnrolInShiftByStudent().contains(registration)) {
+        if (!getUserView(request).getPerson().getStudent().getAllRegistrations().contains(registration)) {
             return null;
         }
 
@@ -276,9 +277,12 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
 
     private ExecutionDegree searchForExecutionDegreeInStudent(final Registration registration,
             final ExecutionSemester executionSemester) {
-        final StudentCurricularPlan studentCurricularPlan = registration.getActiveStudentCurricularPlan();
+        StudentCurricularPlan studentCurricularPlan = registration.getActiveStudentCurricularPlan();
         if (studentCurricularPlan == null) {
-            return null;
+            studentCurricularPlan = registration.getLastStudentCurricularPlan();
+            if (studentCurricularPlan == null) {
+                return null;
+            }
         }
         for (final ExecutionDegree executionDegree : studentCurricularPlan.getDegreeCurricularPlan().getExecutionDegreesSet()) {
             if (executionDegree.getExecutionYear() == executionSemester.getExecutionYear()) {
