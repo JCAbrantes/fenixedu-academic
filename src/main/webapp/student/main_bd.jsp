@@ -120,7 +120,7 @@ table tr.disabled td span.success0 { color: #555; background: #e5e5e5; }
 							</logic:equal>
 							<logic:equal name="evaluationAnnouncement" property="enrolmentElapsing" value="true">
 								<logic:equal name="evaluationAnnouncement" property="groupEnrolment" value="false">
-									<html:link page="/enrollment/evaluations/showEvaluations.faces">
+									<html:link page="/enrollment/evaluations/showEvaluations.faces">//TODO
 										<bean:write name="evaluationAnnouncement" property="register"/>
 									</html:link>
 								</logic:equal>

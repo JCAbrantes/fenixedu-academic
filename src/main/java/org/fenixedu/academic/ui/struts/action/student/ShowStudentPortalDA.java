@@ -70,8 +70,8 @@ public class ShowStudentPortalDA extends Action {
             for (Registration registration : student.getAllRegistrations()) {
                 DegreeCurricularPlan degreeCurricularPlan = registration.getLastDegreeCurricularPlan();
                 if (registration.getAttendingExecutionCoursesForCurrentExecutionPeriod().isEmpty() == false) {
-                    studentPortalBeans.add(new StudentPortalBean(registration.getDegree(), student, registration
-                            .getAttendingExecutionCoursesForCurrentExecutionPeriod(), degreeCurricularPlan));
+                    studentPortalBeans.add(new StudentPortalBean(registration.getDegree(), student,
+                            registration.getAttendingExecutionCoursesForCurrentExecutionPeriod(), degreeCurricularPlan));
                 }
                 if (hasSpecialSeasonEnrolments(student)) {
                     genericDegreeWarnings.addAll(getEnrolmentPeriodCoursesAfterSpecialSeason(degreeCurricularPlan));
@@ -89,13 +89,22 @@ public class ShowStudentPortalDA extends Action {
         return mapping.findForward("studentPortal");
     }
 
+    public ActionForward enrolStudent(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+
+        String string = "================ Done ================";
+        request.setAttribute("test", string);
+        return execute(mapping, form, request, response);
+    }
+
     private List<String> getEnrolmentPeriodCourses(DegreeCurricularPlan degreeCurricularPlan) {
         List<String> warnings = new ArrayList<String>();
         for (final EnrolmentPeriod enrolmentPeriod : degreeCurricularPlan.getEnrolmentPeriodsSet()) {
             if (enrolmentPeriod instanceof EnrolmentPeriodInCurricularCourses) {
                 if (isBetweenWarnPeriod(enrolmentPeriod)) {
-                    warnings.add(BundleUtil.getString(Bundle.STUDENT, "message.out.degree.enrolment.period", degreeCurricularPlan
-                            .getDegree().getSigla(), YearMonthDay.fromDateFields(enrolmentPeriod.getStartDate()).toString(),
+                    warnings.add(BundleUtil.getString(Bundle.STUDENT, "message.out.degree.enrolment.period",
+                            degreeCurricularPlan.getDegree().getSigla(),
+                            YearMonthDay.fromDateFields(enrolmentPeriod.getStartDate()).toString(),
                             YearMonthDay.fromDateFields(enrolmentPeriod.getEndDate()).toString()));
                 }
             }
@@ -123,8 +132,8 @@ public class ShowStudentPortalDA extends Action {
         ExecutionSemester previousSemester = actualSemester.getPreviousExecutionPeriod();
         ExecutionSemester previousPreviousSemester = previousSemester.getPreviousExecutionPeriod();
         if (actualSemester.isFirstOfYear()) {
-            return (student.hasSpecialSeasonEnrolments(previousSemester) || student
-                    .hasSpecialSeasonEnrolments(previousPreviousSemester));
+            return (student.hasSpecialSeasonEnrolments(previousSemester)
+                    || student.hasSpecialSeasonEnrolments(previousPreviousSemester));
         }
         return (student.hasSpecialSeasonEnrolments(actualSemester) || student.hasSpecialSeasonEnrolments(previousSemester));
     }
@@ -135,13 +144,12 @@ public class ShowStudentPortalDA extends Action {
         for (final EnrolmentPeriod enrolmentPeriod : degreeCurricularPlan.getEnrolmentPeriodsSet()) {
             if (enrolmentPeriod instanceof EnrolmentPeriodInSpecialSeasonEvaluations) {
                 if (isBetweenWarnPeriod(enrolmentPeriod)) {
-                    String dateKey =
-                            YearMonthDay.fromDateFields(enrolmentPeriod.getStartDate()).toString()
-                                    + YearMonthDay.fromDateFields(enrolmentPeriod.getEndDate()).toString();
+                    String dateKey = YearMonthDay.fromDateFields(enrolmentPeriod.getStartDate()).toString()
+                            + YearMonthDay.fromDateFields(enrolmentPeriod.getEndDate()).toString();
 
                     if (enrolmentPeriodsByDate.get(dateKey) == null) {
-                        enrolmentPeriodsByDate.put(dateKey, new TreeSet<EnrolmentPeriod>(
-                                EnrolmentPeriod.COMPARATOR_BY_EXECUTION_SEMESTER));
+                        enrolmentPeriodsByDate.put(dateKey,
+                                new TreeSet<EnrolmentPeriod>(EnrolmentPeriod.COMPARATOR_BY_EXECUTION_SEMESTER));
                     }
 
                     enrolmentPeriodsByDate.get(dateKey).add(enrolmentPeriod);
@@ -152,16 +160,19 @@ public class ShowStudentPortalDA extends Action {
         for (TreeSet<EnrolmentPeriod> periods : enrolmentPeriodsByDate.values()) {
             if (periods.size() == 1) {
                 EnrolmentPeriod enrolmentPeriod = periods.first();
-                warnings.add(BundleUtil.getString(Bundle.STUDENT,
-                        "message.out.degree.enrolment.period.in.special.season.evaluations", degreeCurricularPlan.getDegree()
-                                .getSigla(), enrolmentPeriod.getExecutionPeriod().getSemester().toString(), enrolmentPeriod
-                                .getExecutionPeriod().getYear(), YearMonthDay.fromDateFields(enrolmentPeriod.getStartDate())
-                                .toString(), YearMonthDay.fromDateFields(enrolmentPeriod.getEndDate()).toString()));
+                warnings.add(
+                        BundleUtil.getString(Bundle.STUDENT, "message.out.degree.enrolment.period.in.special.season.evaluations",
+                                degreeCurricularPlan.getDegree().getSigla(),
+                                enrolmentPeriod.getExecutionPeriod().getSemester().toString(),
+                                enrolmentPeriod.getExecutionPeriod().getYear(),
+                                YearMonthDay.fromDateFields(enrolmentPeriod.getStartDate()).toString(),
+                                YearMonthDay.fromDateFields(enrolmentPeriod.getEndDate()).toString()));
             } else {
                 EnrolmentPeriod enrolmentPeriod = periods.first();
                 warnings.add(BundleUtil.getString(Bundle.STUDENT,
-                        "message.out.degree.enrolment.period.in.special.season.evaluations.simple", degreeCurricularPlan
-                                .getDegree().getSigla(), YearMonthDay.fromDateFields(enrolmentPeriod.getStartDate()).toString(),
+                        "message.out.degree.enrolment.period.in.special.season.evaluations.simple",
+                        degreeCurricularPlan.getDegree().getSigla(),
+                        YearMonthDay.fromDateFields(enrolmentPeriod.getStartDate()).toString(),
                         YearMonthDay.fromDateFields(enrolmentPeriod.getEndDate()).toString()));
             }
         }
