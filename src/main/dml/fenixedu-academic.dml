@@ -3229,6 +3229,7 @@ valueType org.fenixedu.academic.domain.accounting.EventTypes as EventTypes {
         LocalizedString title;
         ThesisVisibilityType visibility;
         DateTime confirmmedDocuments;
+        String tid;
     }
 
     class thesis.ThesisLibraryOperation  {
@@ -4093,6 +4094,7 @@ class phd.thesis.PhdThesisProcess extends phd.PhdProgramProcess {
 	PhdJuryElementsRatificationEntity phdJuryElementsRatificationEntity;
 	String ratificationEntityCustomMessage;
 	LocalizedString presidentTitle;
+	String tid;
 }
 
 class phd.thesis.meeting.PhdMeetingSchedulingProcess extends phd.PhdProgramProcess {
@@ -4417,6 +4419,9 @@ class accounting.report.events.EventReportQueueJob extends QueueJobWithFile {
 }
 	class accounting.report.events.EventReportQueueJobFile extends .org.fenixedu.bennu.io.domain.GenericFile {
 	}
+
+class thesis.ThesisRenatesReportFile extends QueueJobWithFile {
+}
 
 class ProfessorshipPermissions  {
 	boolean personalization;

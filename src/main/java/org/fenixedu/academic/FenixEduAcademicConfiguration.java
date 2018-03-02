@@ -18,11 +18,16 @@
  */
 package org.fenixedu.academic;
 
+import org.fenixedu.academic.domain.DefaultInstitutionCodeProvider;
+import org.fenixedu.academic.domain.InstitutionCodeProvider;
 import org.fenixedu.commons.configuration.ConfigurationInvocationHandler;
 import org.fenixedu.commons.configuration.ConfigurationManager;
 import org.fenixedu.commons.configuration.ConfigurationProperty;
 
 public class FenixEduAcademicConfiguration {
+
+    private static InstitutionCodeProvider institutionCodeProvider;
+
     @ConfigurationManager(description = "FenixEdu Academic Configuration")
     public interface ConfigurationProperties {
 
@@ -42,8 +47,7 @@ public class FenixEduAcademicConfiguration {
                 defaultValue = "http://localhost:8080/fenix/publico/genericApplications.do?method=confirmEmail&confirmationCode=")
         public String getGenericApplicationEmailConfirmationLink();
 
-        @ConfigurationProperty(
-                key = "generic.application.email.recommendation.link",
+        @ConfigurationProperty(key = "generic.application.email.recommendation.link",
                 defaultValue = "http://localhost:8080/fenix/publico/genericApplications.do?method=uploadRecommendation&confirmationCode=")
         public String getGenericApplicationEmailRecommendationLink();
 
@@ -74,8 +78,7 @@ public class FenixEduAcademicConfiguration {
         @ConfigurationProperty(key = "semester.for.from.enrolments", defaultValue = "1")
         public String getSemesterForFromEnrolments();
 
-        @ConfigurationProperty(
-                key = "semester.for.from.mark.sheet.managment",
+        @ConfigurationProperty(key = "semester.for.from.mark.sheet.managment",
                 description = "indicates if pending request should be stored in database to recover current session after new login",
                 defaultValue = "2")
         public String getSemesterForFromMarkSheetManagment();
@@ -123,12 +126,29 @@ public class FenixEduAcademicConfiguration {
                 defaultValue = "2005/2006")
         public String getYearForFromMarkSheetManagment();
 
-        @ConfigurationProperty(key="maximum.number.of.credits.for.enrolment", defaultValue = "40.5")
+        @ConfigurationProperty(key = "maximum.number.of.credits.for.enrolment", defaultValue = "40.5")
         public double getMaximumNumberOfCreditsForEnrolment();
+
+        @ConfigurationProperty(key = "establishment.code", defaultValue = "0000")
+        public String getEstablishmentCode();
+
+        @ConfigurationProperty(key = "organic.unit.code", defaultValue = "0000")
+        public String getOrganicUnitCode();
     }
 
     public static ConfigurationProperties getConfiguration() {
         return ConfigurationInvocationHandler.getConfiguration(ConfigurationProperties.class);
+    }
+
+    public static InstitutionCodeProvider getInstitutionCodeProvider() {
+        if (institutionCodeProvider == null) {
+            setInstitutionCodeProvider(new DefaultInstitutionCodeProvider());
+        }
+        return institutionCodeProvider;
+    }
+
+    public static void setInstitutionCodeProvider(InstitutionCodeProvider institutionCodeProvider) {
+        FenixEduAcademicConfiguration.institutionCodeProvider = institutionCodeProvider;
     }
 
 }
