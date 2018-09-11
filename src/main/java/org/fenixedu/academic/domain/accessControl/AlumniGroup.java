@@ -18,8 +18,11 @@
  */
 package org.fenixedu.academic.domain.accessControl;
 
-import com.google.common.base.Objects;
+import java.util.stream.Stream;
+
+import org.fenixedu.academic.domain.Alumni;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -34,7 +37,7 @@ import org.fenixedu.bennu.core.domain.groups.PersistentGroup;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.joda.time.DateTime;
 
-import java.util.stream.Stream;
+import com.google.common.base.Objects;
 
 @GroupOperator("alumni")
 public class AlumniGroup extends FenixGroup {
@@ -124,20 +127,42 @@ public class AlumniGroup extends FenixGroup {
 
     @Override
     public boolean isMember(User user, DateTime when) {
-        return user != null
-                && user.getPerson() != null
-                && user.getPerson().getStudent() != null
-                && (degree == null || isDegreeConcluded(user.getPerson().getStudent())) // If degree is set, check for its conclusion
-                && (registered != null // If registered is not set, allow any
-                        || (user.getPerson().getStudent().getAlumni() != null
-                                || hasConcludedRegistration(user.getPerson().getStudent())
-                                || isAlumni(user.getPerson().getStudent())))
-                && ((registered != null && !registered) // If registered is set to true, only allow registered Alumni
-                        || (user.getPerson().getStudent().getAlumni() != null && isAlumni(user.getPerson().getStudent())))
-                && ((registered != null && registered) // If registered is set to false, only allow non registered Alumni
-                        || (user.getPerson().getStudent().getAlumni() == null
-                                && hasConcludedRegistration(user.getPerson().getStudent())
-                                && !isAlumni(user.getPerson().getStudent())));
+
+        if (user == null) {
+            return false;
+        }
+
+        Person person = user.getPerson();
+
+        if (person == null) {
+            return false;
+        }
+
+        Student student = person.getStudent();
+
+        if (student == null) {
+            return false;
+        }
+
+        Alumni alumni = student.getAlumni();
+
+        if (degree != null && !isDegreeConcluded(student)) { // If degree is set, check for its conclusion
+            return false;
+        }
+
+        if (registered == null) {
+            if (alumni == null && !hasConcludedRegistration(student) && !isAlumni(student)) { // If registered is not set, allow any
+                return false;
+            }
+        } else if (registered) {
+            if (alumni == null || !isAlumni(student)) { // If registered is set to true, only allow registered Alumni
+                return false;
+            }
+        } else if (alumni != null || !hasConcludedRegistration(student) || isAlumni(student)) { // If registered is set to false, only allow non registered Alumni
+            return false;
+        }
+
+        return true;
     }
 
     private boolean hasConcludedRegistration(Student student) {
